@@ -2,44 +2,35 @@
 Создание числового нормального распределения по N обьектам
 """
 import math
-from math import exp
-from numpy.random import normal
+from math import exp, pi
 
 
-def square_deviation(x: float, m: float):
-    return pow(x - m, 2)
+def get_nd(n: int) -> list[float]:
+    if n % 2 == 0:
+        middle = (n + 1) / 2.0
+    else:
+        middle = n // 2 + 1
+    print(f"\n{middle}")
+    sigma = 1
+    lst = []
+    for i in range(1, n + 1):
+        # print(i)
+        sd = square_deviation(i, middle)
+        sd_div_s = sd_div_sigma(sd, sigma)
+        exp_sd = exp(sd_div_s)
+        ndi = normal_distribution(exp_sd, sigma)
+        lst.append(ndi)
+
+    return lst
 
 
-def variance(s: float):
-    return 2 * s * s
+def square_deviation(x: float | int, m: float) -> float:
+    return -pow(x - m, 2)
 
 
-def integr_sum(s: float):
-    return pow(2 * math.pi, 1 / 2) * s
+def sd_div_sigma(x: float, s: float) -> float:
+    return x / (2 * s * s)
 
 
-def get_normal_distribution(x: float, m: float, s: float) -> float:
-    return exp(-square_deviation(x, m) / variance(s)) / integr_sum(s)
-
-
-def sigma(x):
-    # x = [0, 100]
-    mean = sum(x) / len(x)
-    sig = pow(sum([pow(y - mean, 2) for y in x]) / len(x), 1 / 2)
-    return sig
-
-
-if __name__ == '__main__':
-    # print(get_normal_distribution(0, 0, 1))
-    """for i in range(50):
-        for _ in range(100):
-            ss = list(map(int, normal(50, i, 5)))
-            for t in ss:
-                if t > 100 or t < 0:
-                    print('*' * 40)
-                    print(i)
-                    print(ss)
-                    print(sigma(ss))"""
-    ss = list(map(lambda x: x, normal(0, 10, 5)))
-    print(ss)
-    print(sigma(ss))
+def normal_distribution(x: float, s: float) -> float:
+    return round(x / (pow(2 * pi, 1 / 2) * s) * 100, 2)

@@ -2,42 +2,37 @@ import pytest
 from warehouse import main
 
 
-def test_create():
-    pass
-
-
 # def test_get_nd_without_arguments():
 #    with pytest.raises(TypeError):
 #        main.get_normal_distribution()
 
-
-# def test_get_nd_for_null():
-#    assert main.get_normal_distribution(0, 0) == 0
-
-
-def test_square_deviation_args():
-    assert main.square_deviation(0, 0) == 0
+def test_create():
+    main.get_nd(5)
 
 
-def test_sd_div_variance():
-    assert main.square_deviation(0, 0) / main.variance(1) == 0
+def test_square_deviation():
+    assert main.square_deviation(x=1, m=3) == -4
 
 
-def test_exp_from_sd_div_v():
-    assert main.exp(main.square_deviation(0, 0) / main.variance(1)) == 1
+def test_sd_div_sigma():
+    assert main.sd_div_sigma(x=-4, s=1) == -2
 
 
-def test_variance():
-    assert main.variance(2) == 8
+def test_exp():
+    assert main.exp(-2) == 0.1353352832366127
 
 
-def test_integr_sum():
-    assert main.integr_sum(10) == 25.06628274631
+def test_normal_distribution():
+    assert main.normal_distribution(x=0.1353352832366127, s=1) == 5.40
 
 
-def test_nd():
-    assert main.get_normal_distribution(0, 0, 1) == 0.3989422804014327
+def test_get_nd_for_five():
+    assert main.get_nd(5) == [5.4, 24.2, 39.89, 24.2, 5.4]
 
 
-def test_equal_nd():
-    assert main.get_normal_distribution(0, 0, 1) == main.normal(0, 0, 1)
+def test_get_nd_for_six():
+    assert main.get_nd(6) == [1.75, 12.95, 35.21, 35.21, 12.95, 1.75]
+
+
+def test_get_nd_for_three():
+    assert main.get_nd(3) == [24.2, 39.89, 24.2]
