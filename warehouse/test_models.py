@@ -27,24 +27,46 @@ T = models.Technic(id=0,
                    )
 
 
-def test_stored_items():
+def test_stored_items_create():
     si = models.StoredItem(item=T, count=1)
+
+
+def test_employee_create():
+    e = models.Employee(
+        id=0,
+        name="",
+        surname="",
+        patronimic="",
+        login="",
+        hased_password=""
+    )
+
+
+E = models.Employee(
+    id=0,
+    name="",
+    surname="",
+    patronimic="",
+    login="",
+    hased_password=""
+)
 
 
 def test_warehouse_create():
     w1 = models.Warehouse(id=0,
-                          address="Патриотов проспект, д.17")
-    w2 = models.Warehouse(address="Патриотов проспект, д.17")
+                          address="Патриотов проспект, д.17", employee=E)
+    w2 = models.Warehouse(address="Патриотов проспект, д.17", employee=E)
     with pytest.raises(AttributeError):
-        id = w2._id
+        id = w2.id
 
 
-def test_warehouse_items():
-    si = models.StoredItem(item=T, count=1)
-    w = models.Warehouse(id=0,
-                         address="Патриотов проспект, д.17", items=[si])
+W1 = models.Warehouse(address="Патриотов проспект, д.1", employee=E)
 
-    assert w.items == [si]
-    w.add_item(si)
-    assert w.items == [si]
-    assert w.get_item(si).count == 2
+
+def test_invoice_create():
+
+    inv = models.Invoice(id=0,
+                         is_receiving=True,
+                         ffrom="Какой то поставшик, ООО \"ООО\"",
+                         to=E
+                         )

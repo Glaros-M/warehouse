@@ -10,7 +10,25 @@ class Technic:
         self.cost = cost
         self.model = model
         if id:
-            self._id = id
+            self.id = id
+
+
+class Employee:
+    def __init__(self,
+                 name: str,
+                 surname: str,
+                 patronimic: str,
+                 login: str,
+                 hased_password: str,
+                 id: int | None = None
+                 ):
+        if id:
+            self.id = id
+        name = name
+        surname = surname
+        patronimic = patronimic
+        login = login
+        hased_password = hased_password
 
 
 class StoredItem:
@@ -22,10 +40,11 @@ class StoredItem:
 class Warehouse:
     def __init__(self,
                  address: str,
+                 employee: Employee,
                  id: int | None = None,
                  items: list[StoredItem] | None = None):
         if id:
-            self._id = id
+            self.id = id
         if not items:
             items = []
         self.items = items
@@ -40,3 +59,7 @@ class Warehouse:
     def get_item(self, item: StoredItem) -> StoredItem:
         if item in self.items:
             return self.items[0]
+
+
+class Invoice:
+    pass
