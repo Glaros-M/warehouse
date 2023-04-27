@@ -1,3 +1,6 @@
+from warehouse.exeptions import ItemNotFoundError, DeficitStockError
+
+
 class Technic:
     def __init__(self,
                  inventory_number: str,
@@ -31,48 +34,49 @@ class Employee:
         hased_password = hased_password
 
 
-class StoredItem:
-    def __init__(self, item: Technic, count: int):
-        self.item = item
-        self.count = count
+class StoreItemMixin:
+    def store_item(self, item: Technic, count: int):
+        if item not in self.items:
+            self.items.update({item: count})
+        else:
+            self.items[item] = self.items[item] + count
+
+    def take_item(self, item: Technic, quantity: int):
+        if item not in self.items:
+            raise ItemNotFoundError
+        else:
+            if self.items[item] < quantity:
+                raise DeficitStockError
+            self.items[item] = self.items[item] - quantity
 
 
-class Warehouse:
+class Warehouse(StoreItemMixin):
     def __init__(self,
                  address: str,
                  employee: Employee,
                  id: int | None = None,
-                 items: list[StoredItem] | None = None):
+                 items: dict | None = None):
         if id:
             self.id = id
         if not items:
-            items = []
+            items = {}
         self.items = items
         self.address = address
-
-    def add_item(self, item: StoredItem):
-        if not item in self.items:
-            self.items.append(item)
-        else:
-            self.items[self.items.index(item)].count += item.count
-
-    def get_item(self, item: StoredItem) -> StoredItem:
-        if item in self.items:
-            return self.items[self.items.index(item)]
+        self.employee = employee
 
 
-class Invoice:
+class Invoice(StoreItemMixin):
     def __init__(self,
                  is_receiving: bool,
                  from_who: str | Employee,
                  to: str | Employee,
                  id: int | None = None,
-                 items: list[StoredItem] | None = None
+                 items: dict | None = None
                  ):
         if id:
             self.id = id
         if not items:
-            items = []
+            items = {}
         self.items = items
         self.is_receiving = is_receiving
         self.from_who = from_who

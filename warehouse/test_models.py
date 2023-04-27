@@ -1,4 +1,5 @@
 from warehouse import models
+from warehouse.exeptions import ItemNotFoundError, DeficitStockError
 import pytest
 
 
@@ -26,9 +27,13 @@ T = models.Technic(id=0,
                    model="zenith camera"
                    )
 
+T2 = models.Technic(id=1,
+                    inventory_number="ОВТ1010432124",
+                    made_in="USSR",
+                    cost=123.45,
+                    model="zenith camera"
+                    )
 
-def test_stored_items_create():
-    si = models.StoredItem(item=T, count=1)
 
 
 def test_employee_create():
@@ -70,13 +75,41 @@ def test_invoice_create():
 
 def test_warehouse_items():
     w = models.Warehouse(address="Патриотов проспект, д.1", employee=E)
-    assert w.items == []
-    si = models.StoredItem(T, 1)
-    si2 = models.StoredItem(T, 10)
-    w.add_item(si)
-    assert si in w.items
-    assert len(w.items) == 1
-    w.add_item(si)
-    assert len(w.items) == 1
-    w.add_item(si2)
-    assert len(w.items) == 1
+    assert w.items == {}
+    w.store_item(T, 10)
+    assert w.items[T] == 10
+
+    w.store_item(T, 20)
+    assert w.items[T] == 30
+
+    w.take_item(T, 15)
+    assert w.items[T] == 15
+
+    with pytest.raises(ItemNotFoundError):
+        w.take_item(T2, 10)
+
+    with pytest.raises(DeficitStockError):
+        w.take_item(T, 999999)
+
+
+def test_invoice_items():
+    inv = models.Invoice(id=0,
+                         is_receiving=True,
+                         from_who="Какой то поставшик, ООО \"ООО\"",
+                         to=E
+                         )
+    assert inv.items == {}
+    inv.store_item(T, 10)
+    assert inv.items[T] == 10
+
+    inv.store_item(T, 20)
+    assert inv.items[T] == 30
+
+    inv.take_item(T, 15)
+    assert inv.items[T] == 15
+
+    with pytest.raises(ItemNotFoundError):
+        inv.take_item(T2, 10)
+
+    with pytest.raises(DeficitStockError):
+        inv.take_item(T, 999999)
