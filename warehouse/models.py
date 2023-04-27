@@ -58,8 +58,22 @@ class Warehouse:
 
     def get_item(self, item: StoredItem) -> StoredItem:
         if item in self.items:
-            return self.items[0]
+            return self.items[self.items.index(item)]
 
 
 class Invoice:
-    pass
+    def __init__(self,
+                 is_receiving: bool,
+                 from_who: str | Employee,
+                 to: str | Employee,
+                 id: int | None = None,
+                 items: list[StoredItem] | None = None
+                 ):
+        if id:
+            self.id = id
+        if not items:
+            items = []
+        self.items = items
+        self.is_receiving = is_receiving
+        self.from_who = from_who
+        self.to = to

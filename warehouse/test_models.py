@@ -16,7 +16,7 @@ def test_technic_create():
                         model="zenith camera"
                         )
     with pytest.raises(AttributeError):
-        id = t2._id
+        id = t2.id
 
 
 T = models.Technic(id=0,
@@ -60,13 +60,23 @@ def test_warehouse_create():
         id = w2.id
 
 
-W1 = models.Warehouse(address="Патриотов проспект, д.1", employee=E)
-
-
 def test_invoice_create():
-
     inv = models.Invoice(id=0,
                          is_receiving=True,
-                         ffrom="Какой то поставшик, ООО \"ООО\"",
+                         from_who="Какой то поставшик, ООО \"ООО\"",
                          to=E
                          )
+
+
+def test_warehouse_items():
+    w = models.Warehouse(address="Патриотов проспект, д.1", employee=E)
+    assert w.items == []
+    si = models.StoredItem(T, 1)
+    si2 = models.StoredItem(T, 10)
+    w.add_item(si)
+    assert si in w.items
+    assert len(w.items) == 1
+    w.add_item(si)
+    assert len(w.items) == 1
+    w.add_item(si2)
+    assert len(w.items) == 1
