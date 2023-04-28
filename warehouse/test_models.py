@@ -35,7 +35,6 @@ T2 = models.Technic(id=1,
                     )
 
 
-
 def test_employee_create():
     e = models.Employee(
         id=0,
@@ -113,3 +112,5 @@ def test_invoice_items():
 
     with pytest.raises(DeficitStockError):
         inv.take_item(T, 999999)
+
+    assert inv.total() == 1851.75

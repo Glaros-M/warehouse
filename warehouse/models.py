@@ -49,6 +49,12 @@ class StoreItemMixin:
                 raise DeficitStockError
             self.items[item] = self.items[item] - quantity
 
+    def total(self):
+        totals = 0
+        for item, quantity in self.items.items():
+            totals = totals + (item.cost * quantity)
+        return totals
+
 
 class Warehouse(StoreItemMixin):
     def __init__(self,
@@ -81,3 +87,5 @@ class Invoice(StoreItemMixin):
         self.is_receiving = is_receiving
         self.from_who = from_who
         self.to = to
+
+
