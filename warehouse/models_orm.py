@@ -1,13 +1,14 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import create_engine
 from sqlalchemy import ForeignKey, BigInteger, Integer, String, Table, Column
-
 from sqlalchemy.orm import DeclarativeBase
-
 from typing import List
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import relationship
+
+from normal_distribution import get_nd
+from random import choices
 
 from warehouse.exeptions import ItemNotFoundError, DeficitStockError
 
@@ -70,18 +71,37 @@ if __name__ == '__main__':
 
     s = Session(engine)
 
-    t1 = Technic(inventory_number="1", made_in="Ru", cost=100.00, model="1")
-    e1 = Employee(name="", surname="", patronimic="")
-    i1 = Invoice(is_receiving=True, technic=[t1])
-    w1 = Warehouse(address="", employee=e1, invoices=[i1])
+    e1 = Employee(surname="Иванов", name="Иван", patronimic="Иванович")
+    e2 = Employee(surname="Петров", name="Петр", patronimic="Петрович")
+    e3 = Employee(surname="Николаев", name="Николай", patronimic="Николаевич")
+    e4 = Employee(surname="Сергеев", name="Сергей", patronimic="Сергеевич")
+    e5 = Employee(surname="Александров", name="Александр", patronimic="Александрович")
 
+    w1 = Warehouse(address="г. Воронеж, ул. Докучаева, д.1", employee=e1)
+    w2 = Warehouse(address="г. Воронеж, ул. Докучаева, д.2", employee=e2)
+    w3 = Warehouse(address="г. Воронеж, ул. Докучаева, д.3", employee=e3)
+    w4 = Warehouse(address="г. Воронеж, ул. Докучаева, д.4", employee=e4)
+    w5 = Warehouse(address="г. Воронеж, ул. Докучаева, д.5", employee=e5)
+
+    i1 = Invoice(is_receiving=True, technic=[])
+    i2 = Invoice(is_receiving=True, technic=[])
+    i3 = Invoice(is_receiving=True, technic=[])
+    i4 = Invoice(is_receiving=True, technic=[])
+    i5 = Invoice(is_receiving=True, technic=[])
+
+    nd = get_nd(5, 0.8, to_int=True)  # [2.19, 22.83, 49.87, 22.83, 2.19]
+    for j in range(100):
+        t1 = Technic(inventory_number=str(j), made_in="Ru", cost=100.00, model="1")
+        i = choices([i1, i2, i3, i4, i5], weights=nd)[0]
+        i.technic.append(t1)
+
+
+    w1 = Warehouse(address="", employee=e1, invoices=[i3])
 
     session = Session(engine)
 
-    session.add(t1)
-    session.add(e1)
-    session.add(i1)
     session.add(w1)
     session.commit()
     print(w1.id)
-    print(w1.invoices[0].id)
+    print(w1.invoices[0].technic)
+    print(len(w1.invoices[0].technic))

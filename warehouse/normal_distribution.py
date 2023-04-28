@@ -51,7 +51,7 @@ def _normal_distribution(x: float, s: float) -> float:
     return round(x / (pow(2 * pi, 1 / 2) * s) * 100, 2)
 
 
-def get_nd(n: int) -> list[float]:
+def get_nd(n: int, sigma: float = 1, to_int: bool = False) -> list[float]:
     """Генерация нормального распределения вероятностей длинной n
 
     Сигма установлена на 1.
@@ -71,7 +71,6 @@ def get_nd(n: int) -> list[float]:
         middle = (n + 1) / 2.0
     else:
         middle = n // 2 + 1
-    sigma = 1
     lst = []
     for i in range(1, n + 1):
         sd = _square_deviation(i, middle)
@@ -79,6 +78,8 @@ def get_nd(n: int) -> list[float]:
         exp_sd = exp(sd_div_s)
         ndi = _normal_distribution(exp_sd, sigma)
         lst.append(ndi)
+    if to_int:
+        return [int(x) for x in lst]
 
     return lst
 
@@ -93,4 +94,5 @@ def get_weigth_for_nd(target: int, nd: list[float]) -> float:
 
 
 if __name__ == '__main__':
-    print(get_nd(1))
+
+    print(get_nd(5, 0.8, True))
