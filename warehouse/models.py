@@ -1,91 +1,68 @@
-from warehouse.exeptions import ItemNotFoundError, DeficitStockError
+from sqlalchemy import ForeignKey, BigInteger, Integer,  Table, Column
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship, Session
+from normal_distribution import get_nd
+from random import choices
+
+from db import engine
 
 
-class Technic:
-    def __init__(self,
-                 inventory_number: str,
-                 made_in: str,
-                 cost: float,
-                 model: str,
-                 id: int | None = None):
-        self.inventory_number = inventory_number
-        self.made_in = made_in
-        self.cost = cost
-        self.model = model
-        if id:
-            self.id = id
+class Base(DeclarativeBase):
+    pass
 
 
-class Employee:
-    def __init__(self,
-                 name: str,
-                 surname: str,
-                 patronimic: str,
-                 login: str,
-                 hased_password: str,
-                 id: int | None = None
-                 ):
-        if id:
-            self.id = id
-        name = name
-        surname = surname
-        patronimic = patronimic
-        login = login
-        hased_password = hased_password
+class Technic(Base):
+    __tablename__ = "technic"
+    id: Mapped[int] = mapped_column(BigInteger().with_variant(Integer, "sqlite"), primary_key=True, autoincrement=True)
+    inventory_number: Mapped[str]
+    made_in: Mapped[str]
+    cost: Mapped[float]
+    model: Mapped[str]
+
+    def __repr__(self):
+        return f"{self.id=} {self.inventory_number=} {self.made_in=} {self.cost=} {self.model=}"
 
 
-class StoreItemMixin:
-    def store_item(self, item: Technic, count: int):
-        if item not in self.items:
-            self.items.update({item: count})
-        else:
-            self.items[item] = self.items[item] + count
 
-    def take_item(self, item: Technic, quantity: int):
-        if item not in self.items:
-            raise ItemNotFoundError
-        else:
-            if self.items[item] < quantity:
-                raise DeficitStockError
-            self.items[item] = self.items[item] - quantity
+class Employee(Base):
+    __tablename__ = "employee"
+    id: Mapped[int] = mapped_column(BigInteger().with_variant(Integer, "sqlite"), primary_key=True, autoincrement=True)
+    name: Mapped[str]
+    surname: Mapped[str]
+    patronimic: Mapped[str]
+    warehouse_id = Column(Integer, ForeignKey("warehouse.id"))
+    warehouse = relationship("Warehouse", back_populates="employee")
 
-    def total(self):
-        totals = 0
-        for item, quantity in self.items.items():
-            totals = totals + (item.cost * quantity)
-        return totals
+    def __repr__(self):
+        return f"{self.surname} {self.name} {self.patronimic}"
 
 
-class Warehouse(StoreItemMixin):
-    def __init__(self,
-                 address: str,
-                 employee: Employee,
-                 id: int | None = None,
-                 items: dict | None = None):
-        if id:
-            self.id = id
-        if not items:
-            items = {}
-        self.items = items
-        self.address = address
-        self.employee = employee
+class Warehouse(Base):
+    __tablename__ = "warehouse"
+    id: Mapped[int] = mapped_column(BigInteger().with_variant(Integer, "sqlite"), primary_key=True, autoincrement=True)
+    address: Mapped[str]
+    employee = relationship("Employee", back_populates="warehouse", uselist=False)
+    invoices: Mapped[list["Invoice"]] = relationship("Invoice")
+
+    def __repr__(self):
+        return f"{self.id=} {self.address=} {self.employee=}"
 
 
-class Invoice(StoreItemMixin):
-    def __init__(self,
-                 is_receiving: bool,
-                 from_who: str | Employee,
-                 to: str | Employee,
-                 id: int | None = None,
-                 items: dict | None = None
-                 ):
-        if id:
-            self.id = id
-        if not items:
-            items = {}
-        self.items = items
-        self.is_receiving = is_receiving
-        self.from_who = from_who
-        self.to = to
+invoice_items = Table(
+    "invoice_items",
+    Base.metadata,
+    Column("invoice_id", ForeignKey("invoice.id")),
+    Column("technic_id", ForeignKey("technic.id")),
+)
 
+
+class Invoice(Base):
+    __tablename__ = "invoice"
+    id: Mapped[int] = mapped_column(BigInteger().with_variant(Integer, "sqlite"), primary_key=True, autoincrement=True)
+    is_receiving: Mapped[bool]
+    warehouse_id = Column(Integer, ForeignKey("warehouse.id"))
+    technic: Mapped[list[Technic]] = relationship("Technic", secondary=invoice_items)
+
+
+if __name__ == '__main__':
+    Base.metadata.create_all(engine)
 
