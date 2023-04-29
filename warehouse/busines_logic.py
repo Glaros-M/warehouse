@@ -56,7 +56,7 @@ def upload_100_technic():
 
 
 def get_remains_for_warehouse(warehouse_id: int, *, session: Session) -> tuple[
-        models.Warehouse | None, list[models.Technic]]:
+    models.Warehouse | None, list[models.Technic]]:
     w = session.get(models.Warehouse, warehouse_id)
     inp: list[models.Invoice] = [x for x in w.invoices if x.is_receiving]
     out: list[models.Invoice] = [x for x in w.invoices if not x.is_receiving]
@@ -86,13 +86,12 @@ def get_remains_for_all_warehouse(*, session: Session):
 
 if __name__ == '__main__':
     s = Session(engine)
+    models.Base.metadata.create_all(engine)
     upload_100_technic()
-
 
     w_r = get_remains_for_all_warehouse(session=s)
     for w, r in w_r:
         print(w, len(r))
-
 
     """
     # Тест добавление накладной на списание

@@ -1,4 +1,4 @@
-from sqlalchemy import ForeignKey, BigInteger, Integer,  Table, Column
+from sqlalchemy import ForeignKey, BigInteger, Integer, Table, Column
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship, Session
 from normal_distribution import get_nd
 from random import choices
@@ -20,7 +20,6 @@ class Technic(Base):
 
     def __repr__(self):
         return f"{self.id=} {self.inventory_number=} {self.made_in=} {self.cost=} {self.model=}"
-
 
 
 class Employee(Base):
@@ -65,4 +64,3 @@ class Invoice(Base):
 
 if __name__ == '__main__':
     Base.metadata.create_all(engine)
-
