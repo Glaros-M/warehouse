@@ -45,13 +45,24 @@ class Warehouse(Base):
     def __repr__(self):
         return f"{self.id=} {self.address=} {self.employee=}"
 
-
+"""
 invoice_items = Table(
     "invoice_items",
     Base.metadata,
     Column("invoice_id", ForeignKey("invoice.id")),
     Column("technic_id", ForeignKey("technic.id")),
-)
+)"""
+
+
+class InvoiceItems(Base):
+    __tablename__ = "invoice_items"
+    invoice_id = Column(ForeignKey("invoice.id"), primary_key=True)
+    technic_id = Column(ForeignKey("technic.id"), primary_key=True)
+    quantity: Mapped[int]
+    technic: Mapped[Technic] = relationship("Technic")
+
+    def __repr__(self):
+        return f"{self.quantity=}  {self.technic}"
 
 
 class Invoice(Base):
@@ -59,7 +70,7 @@ class Invoice(Base):
     id: Mapped[int] = mapped_column(BigInteger().with_variant(Integer, "sqlite"), primary_key=True, autoincrement=True)
     is_receiving: Mapped[bool]
     warehouse_id = Column(Integer, ForeignKey("warehouse.id"))
-    technic: Mapped[list[Technic]] = relationship("Technic", secondary=invoice_items)
+    items = relationship("InvoiceItems")
 
 
 if __name__ == '__main__':

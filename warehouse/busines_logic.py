@@ -19,11 +19,11 @@ def upload_100_technic():
     w4 = models.Warehouse(address="г. Воронеж, ул. Докучаева, д.4", employee=e4)
     w5 = models.Warehouse(address="г. Воронеж, ул. Докучаева, д.5", employee=e5)
 
-    i1 = models.Invoice(is_receiving=True, technic=[])
-    i2 = models.Invoice(is_receiving=True, technic=[])
-    i3 = models.Invoice(is_receiving=True, technic=[])
-    i4 = models.Invoice(is_receiving=True, technic=[])
-    i5 = models.Invoice(is_receiving=True, technic=[])
+    i1 = models.Invoice(is_receiving=True)
+    i2 = models.Invoice(is_receiving=True)
+    i3 = models.Invoice(is_receiving=True)
+    i4 = models.Invoice(is_receiving=True)
+    i5 = models.Invoice(is_receiving=True)
 
     nd = get_nd(5, 0.8)  # [2.19, 22.83, 49.87, 22.83, 2.19]
     for j in range(100):
@@ -32,7 +32,11 @@ def upload_100_technic():
         inv_num = f"№ ОВТ {j}"
         model = f"Изделие {j}.{p}"
         t1 = models.Technic(inventory_number=inv_num, made_in="Ru", cost=p, model=model)
-        i.technic.append(t1)
+
+        inv_item = models.InvoiceItems(quantity=1)
+        inv_item.technic = t1
+
+        i.items.append(inv_item)
 
     w1.invoices.append(i1)
     w2.invoices.append(i2)
@@ -50,8 +54,8 @@ def upload_100_technic():
     session.commit()
 
     print(w1.id)
-    print(w1.invoices[0].technic)
-    print(len(w1.invoices[0].technic))
+    print(w1.invoices[0].items)
+    print(len(w1.invoices[0].items))
     session.close()
 
 
@@ -89,9 +93,9 @@ if __name__ == '__main__':
     models.Base.metadata.create_all(engine)
     upload_100_technic()
 
-    w_r = get_remains_for_all_warehouse(session=s)
-    for w, r in w_r:
-        print(w, len(r))
+    #w_r = get_remains_for_all_warehouse(session=s)
+    #for w, r in w_r:
+    #    print(w, len(r))
 
     """
     # Тест добавление накладной на списание
