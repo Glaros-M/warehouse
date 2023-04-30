@@ -96,9 +96,6 @@ def get_remains_for_warehouse(warehouse_id: int, *, session: Session) -> tuple[m
                 else:
                     warehouse_items_dict.update({item.technic: quantity})
 
-    for key, value in warehouse_items_dict.items():
-        print(key.model, value)
-
     return w, warehouse_items_dict
 
 
@@ -111,21 +108,69 @@ def get_remains_for_all_warehouse(*, session: Session):
     return remains_w
 
 
-def get_remains_for_technic(technic_id: int, *, session: Session):
-    session.get(models.Technic, technic_id)
-    stmt = Select(models.Technic.model, models.Invoice.is_receiving, models.InvoiceItems.quantity)\
+def get_remains_for_technic_in_warehouse(technic_id: int, *, session: Session) -> tuple[models.Technic | None, dict]:
+    technic = session.get(models.Technic, technic_id)
+    stmt = Select(models.Technic.id,
+                  models.Invoice.is_receiving,
+                  models.InvoiceItems.quantity,
+                  models.Invoice.warehouse_id
+                  )\
         .join(models.InvoiceItems, models.Technic.id == models.InvoiceItems.technic_id)\
         .join(models.Invoice, models.Invoice.id == models.InvoiceItems.invoice_id)\
         .where(models.Technic.id == technic_id)
 
     a = session.execute(stmt)
-    for i in a:
-        print(i)
+
+    warehouse_dict = {}
+    for _, is_receiving, quantity, warehouse_id in a:
+        if warehouse_id not in warehouse_dict:
+            warehouse_dict.update({warehouse_id: quantity})
+        else:
+            if not is_receiving:
+                quantity = -quantity
+            quantity = warehouse_dict[warehouse_id] + quantity
+            warehouse_dict.update({warehouse_id: quantity})
+
+    return technic, warehouse_dict
+
+
+def get_remains_for_technic(technic_id, *, session: Session) ->  int:
+    stmt = Select(models.Technic.cost,
+                  models.Invoice.is_receiving,
+                  models.InvoiceItems.quantity
+                  ) \
+        .join(models.InvoiceItems, models.Technic.id == models.InvoiceItems.technic_id) \
+        .join(models.Invoice, models.Invoice.id == models.InvoiceItems.invoice_id) \
+        .where(models.Technic.id == technic_id)
+    a = session.execute(stmt)
+
+
+    count = 0
+    for cost, is_receiving, quantity in a:
+        #print(cost, is_receiving, quantity)
+        if not is_receiving:
+            quantity = -quantity
+        count += quantity
+    return count
+
+
+def get_all_remains_for_technics(*, session: Session):
+    stmt = Select(models.Technic.id)
+    ids = list(session.execute(stmt).scalars())
+    all_remains = {}
+    for id in ids:
+        technic = session.get(models.Technic, id)
+        quantity = get_remains_for_technic(id, session=session)
+        all_remains.update({technic: quantity})
+    return all_remains
+
 
 if __name__ == '__main__':
     s = Session(engine)
     #upload_100_technic()
     #get_remains_for_warehouse(1, session=s)
+    #get_remains_for_technic(1, session=s)
+    #get_all_remains_for_technics(session=s)
     get_remains_for_technic(1, session=s)
     # w_r = get_remains_for_all_warehouse(session=s)
     # for w, r in w_r:
