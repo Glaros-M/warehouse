@@ -33,7 +33,7 @@ def upload_100_technic():
     for j in range(number_of_items):
         inv_num = f"№ ОВТ {j}"
         model = f"Изделие 00x{j}"
-        cost = round(1000/random.randint(1, 100), 2)
+        cost = round(1000 / random.randint(1, 100), 2)
         t1 = models.Technic(inventory_number=inv_num, made_in="Ru", cost=cost, model=model)
         print(t1.cost)
         quantity_of_item = 100
@@ -43,9 +43,10 @@ def upload_100_technic():
             qs[q] += 1
 
         for i in range(len(invoices)):
-            inv_item = models.InvoiceItems(quantity=qs[i])
-            inv_item.technic = t1
-            invoices[i].items.append(inv_item)
+            if qs[i] > 0:
+                inv_item = models.InvoiceItems(quantity=qs[i])
+                inv_item.technic = t1
+                invoices[i].items.append(inv_item)
 
     w1.invoices.append(i1)
     w2.invoices.append(i2)
@@ -68,24 +69,37 @@ def upload_100_technic():
     session.close()
 
 
-def get_remains_for_warehouse(warehouse_id: int, *, session: Session) -> tuple[
-    models.Warehouse | None, list[models.Technic]]:
+def get_remains_for_warehouse(warehouse_id: int, *, session: Session) -> tuple[models.Warehouse | None, dict]:
     w = session.get(models.Warehouse, warehouse_id)
     inp: list[models.Invoice] = [x for x in w.invoices if x.is_receiving]
     out: list[models.Invoice] = [x for x in w.invoices if not x.is_receiving]
 
-    inp_set = set()
+    warehouse_items_dict = {}
     for inv in inp:
-        for t in inv.technic:
-            inp_set.add(t)
+        for item in inv.items:
+            if item not in warehouse_items_dict:
+                warehouse_items_dict.update({item.technic: item.quantity})
+            else:
+                quantity = warehouse_items_dict[item.technic] + item.quantity
+                warehouse_items_dict.update({item.technic: quantity})
 
-    out_set = set()
     for inv in out:
-        for t in inv.technic:
-            out_set.add(t)
+        for item in inv.items:
+            if item not in warehouse_items_dict:
+                pass  # RAISE ERROR!!!! ЭТО ЗНАЧИТ ЧТО ЗАФИКСИРОВАНА НАКЛАДНАЯ НА СПИСАНИЕ ТОВАРА КОТОРОГО НЕТ НА СКЛАДЕ
+            else:
+                quantity = warehouse_items_dict[item.technic] - item.quantity
+                if quantity < 0:
+                    pass  # RAISE ERROR!!!! НЕВОЗМОЖНАЯ СИТУАЦИЯ, списано со склада больше чем там есть
+                elif quantity == 0:
+                    del warehouse_items_dict[item.technic]
+                else:
+                    warehouse_items_dict.update({item.technic: quantity})
 
-    result = inp_set - out_set
-    return w, list(result)
+    for key, value in warehouse_items_dict.items():
+        print(key.model, value)
+
+    return w, warehouse_items_dict
 
 
 def get_remains_for_all_warehouse(*, session: Session):
@@ -97,11 +111,22 @@ def get_remains_for_all_warehouse(*, session: Session):
     return remains_w
 
 
+def get_remains_for_technic(technic_id: int, *, session: Session):
+    session.get(models.Technic, technic_id)
+    stmt = Select(models.Technic.model, models.Invoice.is_receiving, models.InvoiceItems.quantity)\
+        .join(models.InvoiceItems, models.Technic.id == models.InvoiceItems.technic_id)\
+        .join(models.Invoice, models.Invoice.id == models.InvoiceItems.invoice_id)\
+        .where(models.Technic.id == technic_id)
+
+    a = session.execute(stmt)
+    for i in a:
+        print(i)
+
 if __name__ == '__main__':
     s = Session(engine)
-    models.Base.metadata.create_all(engine)
-    upload_100_technic()
-
+    #upload_100_technic()
+    #get_remains_for_warehouse(1, session=s)
+    get_remains_for_technic(1, session=s)
     # w_r = get_remains_for_all_warehouse(session=s)
     # for w, r in w_r:
     #    print(w, len(r))
