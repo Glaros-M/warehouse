@@ -70,7 +70,7 @@ class Invoice(Base):
     id: Mapped[int] = mapped_column(BigInteger().with_variant(Integer, "sqlite"), primary_key=True, autoincrement=True)
     is_receiving: Mapped[bool]
     warehouse_id = Column(Integer, ForeignKey("warehouse.id"))
-    items = relationship("InvoiceItems")
+    items: Mapped[list[InvoiceItems]] = relationship("InvoiceItems")
 
 
 if __name__ == '__main__':

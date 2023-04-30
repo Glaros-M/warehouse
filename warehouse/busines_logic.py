@@ -1,3 +1,5 @@
+import random
+
 from sqlalchemy.orm import Session
 from sqlalchemy import Select
 from db import engine
@@ -26,17 +28,24 @@ def upload_100_technic():
     i5 = models.Invoice(is_receiving=True)
 
     nd = get_nd(5, 0.8)  # [2.19, 22.83, 49.87, 22.83, 2.19]
-    for j in range(100):
-        i, p = choices([(i1, nd[0]), (i2, nd[1]), (i3, nd[2]), (i4, nd[3]), (i5, nd[4])], weights=nd)[0]
-
+    number_of_items = 100
+    invoices = [i1, i2, i3, i4, i5]
+    for j in range(number_of_items):
         inv_num = f"№ ОВТ {j}"
-        model = f"Изделие {j}.{p}"
-        t1 = models.Technic(inventory_number=inv_num, made_in="Ru", cost=p, model=model)
+        model = f"Изделие 00x{j}"
+        cost = round(1000/random.randint(1, 100), 2)
+        t1 = models.Technic(inventory_number=inv_num, made_in="Ru", cost=cost, model=model)
+        print(t1.cost)
+        quantity_of_item = 100
+        qs = [0 for _ in range(5)]
+        for _ in range(quantity_of_item):
+            q = choices(range(5), weights=nd)[0]
+            qs[q] += 1
 
-        inv_item = models.InvoiceItems(quantity=1)
-        inv_item.technic = t1
-
-        i.items.append(inv_item)
+        for i in range(len(invoices)):
+            inv_item = models.InvoiceItems(quantity=qs[i])
+            inv_item.technic = t1
+            invoices[i].items.append(inv_item)
 
     w1.invoices.append(i1)
     w2.invoices.append(i2)
@@ -93,8 +102,8 @@ if __name__ == '__main__':
     models.Base.metadata.create_all(engine)
     upload_100_technic()
 
-    #w_r = get_remains_for_all_warehouse(session=s)
-    #for w, r in w_r:
+    # w_r = get_remains_for_all_warehouse(session=s)
+    # for w, r in w_r:
     #    print(w, len(r))
 
     """
