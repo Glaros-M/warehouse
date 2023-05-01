@@ -18,7 +18,7 @@ sudo docker run kamomem/warehouse
 Для сборки и запуска использовались следующие команды:
 ```bash
 sudo docker build -t kamomem/warehouse .
-sudo dockerun -p 8888:5000 -it --rm  warehouse
+sudo dockerun -p 8888:5000 -it --rm  kamomem/warehouse
 ```
 
 При запуске контейнера производится создание базы данных, затем создание и загрузка стартового набора данных
@@ -30,14 +30,26 @@ sudo dockerun -p 8888:5000 -it --rm  warehouse
 распределение количества товаров гарантируется только при большом количестве товаров. 
 При заданном параметре в 100 единиц различной техники возможны отклонения.   
 
+
 Вариант гистограммы частот по количеству техники может выглядеть следующим образом:
-![](/home/sir/Python_projects/warehouse/warehouse/static/1.jpg)
+
+
+![](/warehouse/static/1.jpg)
+
+
 
 Если группировать гистограмму до 10 столбцов то получится:
-![](/home/sir/Python_projects/warehouse/warehouse/static/3.jpg)
+
+
+![](/warehouse/static/3.jpg)
+
 
 А если  до 5 столбцов то:
-![](/home/sir/Python_projects/warehouse/warehouse/static/2.jpg)
+
+
+![](/warehouse/static/2.jpg)
+
+
 
 Таким образом количество товаров генерируется действительно по закону
 нормального распределения, однако присутствует погрешность из-за низкого числа единиц техники.
