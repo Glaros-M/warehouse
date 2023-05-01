@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Warehouse remains</title>
+</head>
+<body>
+{% for line in data %}
+{% set warehouse, rem, t_price, t_count = line %}
+<h1>Склад №{{ warehouse.id }} по адресу {{ warehouse.address }}</h1>
+<p>Ответственный сотрудник: {{ warehouse.employee }}</p>
+<p>Всего хранится единиц техники: {{ t_count }} шт. на сумму {{ t_price }} р.</p>
+<table border="solid black 1px">
+    <tr>
+        <th>id</th>
+        <th>Инвентарный номер</th>
+        <th>Модель</th>
+        <th>Стоимость</th>
+        <th>Количество</th>
+        <th>Итого</th>
+    </tr>
+    {% for tech, count in rem.items() %}
+    <tr>
+        <td>{{ tech.id }}</td>
+        <td>{{ tech.inventory_number }}</td>
+        <td>{{ tech.model }}</td>
+        <td>{{ tech.cost }}</td>
+        <td>{{ count }}</td>
+        <td>{{ (tech.cost * count)|round(2) }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+
+{% endfor %}
+</body>
+</html>

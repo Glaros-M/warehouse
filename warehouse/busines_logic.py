@@ -78,7 +78,7 @@ def upload_100_technic():
     session.close()
 
 
-def get_remains_for_warehouse(warehouse_id: int, *, session: Session) -> tuple[models.Warehouse | None, dict]:
+def get_remains_for_warehouse(warehouse_id: int, *, session: Session) -> tuple[models.Warehouse | None, dict, float, int]:
     w = session.get(models.Warehouse, warehouse_id)
     inp: list[models.Invoice] = [x for x in w.invoices if x.is_receiving]
     out: list[models.Invoice] = [x for x in w.invoices if not x.is_receiving]
@@ -105,7 +105,12 @@ def get_remains_for_warehouse(warehouse_id: int, *, session: Session) -> tuple[m
                 else:
                     warehouse_items_dict.update({item.technic: quantity})
 
-    return w, warehouse_items_dict
+    total_count = 0
+    total_price = 0
+    for tech, val in warehouse_items_dict.items():
+        total_count += val
+        total_price += tech.cost * val
+    return w, warehouse_items_dict, round(total_price, 2), total_count
 
 
 def get_remains_for_all_warehouse(*, session: Session):
@@ -192,9 +197,15 @@ if __name__ == '__main__':
     s = Session(engine)
     #upload_100_technic()
     #print(get_remains_for_all_warehouse(session=s))
+    for x, rem, price, count in get_remains_for_all_warehouse(session=s):
+        print(x)
+        print(f"всего товаров {count}")
+        print(f"Общая стоимость {price}")
+        for key, val in rem.items():
+            print(key, val)
 
-    print(get_all_remains_for_technics(session=s))
-    for x, y in get_all_remains_for_technics(session=s).items():
-        print(x, y)
+    #print(get_all_remains_for_technics(session=s))
+    #for x, y in get_all_remains_for_technics(session=s).items():
+    #    print(x, y)
 
     #get_diagram(session=s)
