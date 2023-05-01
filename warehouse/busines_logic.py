@@ -48,22 +48,7 @@ def upload_100_technic():
         inv_item.technic = technics[i]
         j = random.randint(0, 4)
         invoices[j].items.append(inv_item)
-    """
-    n_item = [x for x in range(number_of_items)]
-    n_quantity = [0 for _ in range(number_of_items)]
-    while True:
-        i = random.choices(n_item, weights=nd)[0]
-        n_quantity[i] += 1
-        if max(n_quantity) >=100:
-            break
 
-    for i in range(number_of_items):
-        if n_quantity[i] > -1:
-            inv_item = models.InvoiceItems(quantity=n_quantity[i])
-            inv_item.technic = technics[i]
-            j = random.randint(0, 4)
-            invoices[j].items.append(inv_item)
-    """
     session = Session(engine)
     for i in range(5):
         warehouses[i].invoices.append(invoices[i])
