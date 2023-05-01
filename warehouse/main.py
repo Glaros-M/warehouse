@@ -1,6 +1,6 @@
 from flask import Flask
 
-from views import render_warehouse_remains
+from views import render_warehouse_remains, render_technic_remains, render_histogram
 
 app = Flask(__name__)
 
@@ -22,12 +22,14 @@ def warehouse_remains():
 
 @app.route("/technic-report")
 def technic_remains():
-    return 'Technic_remains'
+    s = Session(engine)
+    return render_technic_remains(session=s)
 
 
 @app.route("/technic-report/histogram")
 def get_histogram():
-    return "histogram"
+    s = Session(engine)
+    return render_histogram(session=s)
 
 
 if __name__ == '__main__':

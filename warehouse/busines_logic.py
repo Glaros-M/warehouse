@@ -42,7 +42,6 @@ def upload_100_technic():
         t1 = models.Technic(inventory_number=inv_num, made_in="Ru", cost=cost, model=model)
         technics.append(t1)
 
-
     for i in range(number_of_items):
         q = random.choices([x for x in range(100)], weights=nd)[0]
         inv_item = models.InvoiceItems(quantity=q)
@@ -78,7 +77,8 @@ def upload_100_technic():
     session.close()
 
 
-def get_remains_for_warehouse(warehouse_id: int, *, session: Session) -> tuple[models.Warehouse | None, dict, float, int]:
+def get_remains_for_warehouse(warehouse_id: int, *, session: Session) -> tuple[
+    models.Warehouse | None, dict, float, int]:
     w = session.get(models.Warehouse, warehouse_id)
     inp: list[models.Invoice] = [x for x in w.invoices if x.is_receiving]
     out: list[models.Invoice] = [x for x in w.invoices if not x.is_receiving]
@@ -150,7 +150,6 @@ def get_remains_for_technic_in_warehouse(technic_id: int, *, session: Session) -
 
 
 def get_remains_for_technic(technic_id, *, session: Session) -> int:
-
     stmt = Select(models.Technic.cost,
                   models.Invoice.is_receiving,
                   models.InvoiceItems.quantity
@@ -184,28 +183,33 @@ def get_all_remains_for_technics(*, session: Session):
 def get_diagram(*, session: Session):
     """ Построение гистограммы частот по количеству общих остатков единиц техники"""
     remains = get_all_remains_for_technics(session=session)
-
     lst = [quantity for _, quantity in remains.items()]
-    fig, ax = plt.subplots(figsize=(5, 3))
-    ax.hist(lst, bins=len(lst))
 
-    plt.savefig('static\\1.jpg')
+    def draw(data, bins, file):
+        fig, ax = plt.subplots(figsize=(5, 3))
+        ax.hist(data, bins=bins)
+        plt.savefig(file)
+        'static\\1.jpg'
+
+    draw(lst, len(lst), 'static\\1.jpg')
+    draw(lst, 5, 'static\\2.jpg')
+    draw(lst, 10, 'static\\3.jpg')
 
 
 if __name__ == '__main__':
-    #models.Base.metadata.create_all(engine)
+    # models.Base.metadata.create_all(engine)
     s = Session(engine)
-    #upload_100_technic()
-    #print(get_remains_for_all_warehouse(session=s))
-    for x, rem, price, count in get_remains_for_all_warehouse(session=s):
+    # upload_100_technic()
+    # print(get_remains_for_all_warehouse(session=s))
+    """for x, rem, price, count in get_remains_for_all_warehouse(session=s):
         print(x)
         print(f"всего товаров {count}")
         print(f"Общая стоимость {price}")
         for key, val in rem.items():
-            print(key, val)
+            print(key, val)"""
 
-    #print(get_all_remains_for_technics(session=s))
-    #for x, y in get_all_remains_for_technics(session=s).items():
+    print(get_all_remains_for_technics(session=s))
+    # for x, y in get_all_remains_for_technics(session=s).items():
     #    print(x, y)
 
-    #get_diagram(session=s)
+    # get_diagram(session=s)

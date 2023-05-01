@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Technic remains</title>
+</head>
+<body>
+<h1>Отчет об общем остатке по каждой единице техники</h1>
+<table border="solid black 1px">
+    <tr>
+        <th>id</th>
+        <th>Инвентарный номер</th>
+        <th>Модель</th>
+        <th>Стоимость</th>
+        <th>Количество</th>
+        <th>Итого</th>
+    </tr>
+    {% for tech, count in rem.items() %}
+    <tr>
+        <td>{{ tech.id }}</td>
+        <td>{{ tech.inventory_number }}</td>
+        <td>{{ tech.model }}</td>
+        <td>{{ tech.cost }}</td>
+        <td>{{ count }}</td>
+        <td>{{ (tech.cost * count)|round(2) }}</td>
+    </tr>
+    {% endfor %}
+</table>
+</body>
+</html>
