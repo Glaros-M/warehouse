@@ -10,7 +10,7 @@ from random import choices
 from matplotlib import pyplot as plt
 
 
-def upload_100_technic():
+def upload_100_technic(*, session: Session):
     e1 = models.Employee(surname="Иванов", name="Иван", patronimic="Иванович")
     e2 = models.Employee(surname="Петров", name="Петр", patronimic="Петрович")
     e3 = models.Employee(surname="Николаев", name="Николай", patronimic="Николаевич")
@@ -49,7 +49,6 @@ def upload_100_technic():
         j = random.randint(0, 4)
         invoices[j].items.append(inv_item)
 
-    session = Session(engine)
     for i in range(5):
         warehouses[i].invoices.append(invoices[i])
         session.add(warehouses[i])
@@ -179,6 +178,12 @@ def get_diagram(*, session: Session):
     draw(lst, len(lst), 'static/1.jpg')
     draw(lst, 5, 'static/2.jpg')
     draw(lst, 10, 'static/3.jpg')
+
+
+def init_db():
+    models.Base.metadata.create_all(engine)
+    s = Session(engine)
+    upload_100_technic(session=s)
 
 
 if __name__ == '__main__':
