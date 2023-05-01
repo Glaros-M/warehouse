@@ -54,10 +54,6 @@ def upload_100_technic(*, session: Session):
         session.add(warehouses[i])
 
     session.commit()
-
-    print(w1.id)
-    print(w1.invoices[0].items)
-    print(len(w1.invoices[0].items))
     session.close()
 
 
@@ -175,9 +171,9 @@ def get_diagram(*, session: Session):
     remains = get_all_remains_for_technics(session=session)
     lst = [quantity for _, quantity in remains.items()]
 
-    draw(lst, len(lst), 'static/1.jpg')
-    draw(lst, 5, 'static/2.jpg')
-    draw(lst, 10, 'static/3.jpg')
+    draw(lst, len(lst), './warehouse/static/1.jpg')
+    draw(lst, 5, './warehouse/static/2.jpg')
+    draw(lst, 10, './warehouse/static/3.jpg')
 
 
 def init_db():
@@ -187,8 +183,9 @@ def init_db():
 
 
 if __name__ == '__main__':
+    pass
     # models.Base.metadata.create_all(engine)
-    s = Session(engine)
+    #s = Session(engine)
     #upload_100_technic()
     # print(get_remains_for_all_warehouse(session=s))
     """for x, rem, price, count in get_remains_for_all_warehouse(session=s):

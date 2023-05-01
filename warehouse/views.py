@@ -5,7 +5,7 @@ from busines_logic import (
     get_all_remains_for_technics,
     get_diagram)
 env = Environment(
-    loader=FileSystemLoader('./static')
+    loader=FileSystemLoader('warehouse/static')
 )
 
 

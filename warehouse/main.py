@@ -1,6 +1,6 @@
 import os.path
 
-from flask import Flask
+from flask import Flask, url_for
 
 from views import render_warehouse_remains, render_technic_remains, render_histogram
 from busines_logic import init_db
@@ -38,4 +38,4 @@ def get_histogram():
 if __name__ == '__main__':
     if not os.path.exists("sqlite3.db"):
         init_db()
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000)
