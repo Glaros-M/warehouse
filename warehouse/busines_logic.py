@@ -7,6 +7,8 @@ import models
 from normal_distribution import get_nd
 from random import choices
 
+from matplotlib import pyplot as plt
+
 
 def upload_100_technic():
     e1 = models.Employee(surname="Иванов", name="Иван", patronimic="Иванович")
@@ -36,7 +38,7 @@ def upload_100_technic():
         cost = round(1000 / random.randint(1, 100), 2)
         t1 = models.Technic(inventory_number=inv_num, made_in="Ru", cost=cost, model=model)
         print(t1.cost)
-        quantity_of_item = 100
+        quantity_of_item = random.randint(0, 100)
         qs = [0 for _ in range(5)]
         for _ in range(quantity_of_item):
             q = choices(range(5), weights=nd)[0]
@@ -114,9 +116,9 @@ def get_remains_for_technic_in_warehouse(technic_id: int, *, session: Session) -
                   models.Invoice.is_receiving,
                   models.InvoiceItems.quantity,
                   models.Invoice.warehouse_id
-                  )\
-        .join(models.InvoiceItems, models.Technic.id == models.InvoiceItems.technic_id)\
-        .join(models.Invoice, models.Invoice.id == models.InvoiceItems.invoice_id)\
+                  ) \
+        .join(models.InvoiceItems, models.Technic.id == models.InvoiceItems.technic_id) \
+        .join(models.Invoice, models.Invoice.id == models.InvoiceItems.invoice_id) \
         .where(models.Technic.id == technic_id)
 
     a = session.execute(stmt)
@@ -134,7 +136,7 @@ def get_remains_for_technic_in_warehouse(technic_id: int, *, session: Session) -
     return technic, warehouse_dict
 
 
-def get_remains_for_technic(technic_id, *, session: Session) ->  int:
+def get_remains_for_technic(technic_id, *, session: Session) -> int:
     stmt = Select(models.Technic.cost,
                   models.Invoice.is_receiving,
                   models.InvoiceItems.quantity
@@ -144,10 +146,9 @@ def get_remains_for_technic(technic_id, *, session: Session) ->  int:
         .where(models.Technic.id == technic_id)
     a = session.execute(stmt)
 
-
     count = 0
     for cost, is_receiving, quantity in a:
-        #print(cost, is_receiving, quantity)
+        # print(cost, is_receiving, quantity)
         if not is_receiving:
             quantity = -quantity
         count += quantity
@@ -165,13 +166,26 @@ def get_all_remains_for_technics(*, session: Session):
     return all_remains
 
 
+def get_diagram(*, session: Session):
+    remains = get_all_remains_for_technics(session=session)
+    lst = [quantity for _, quantity in remains.items()]
+
+    fig, ax = plt.subplots(figsize=(5, 3))
+    ax.hist(lst, bins=len(lst))
+
+    plt.show()
+
+
 if __name__ == '__main__':
     s = Session(engine)
     #upload_100_technic()
-    #get_remains_for_warehouse(1, session=s)
-    #get_remains_for_technic(1, session=s)
-    #get_all_remains_for_technics(session=s)
-    get_remains_for_technic(1, session=s)
+    # get_remains_for_warehouse(1, session=s)
+    # get_remains_for_technic(1, session=s)
+    # get_all_remains_for_technics(session=s)
+    # get_remains_for_technic(1, session=s)
+    # print(get_remains_for_technic_in_warehouse(1, session=s))
+    get_diagram(session=s)
+
     # w_r = get_remains_for_all_warehouse(session=s)
     # for w, r in w_r:
     #    print(w, len(r))
