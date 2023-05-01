@@ -4,6 +4,7 @@
 на основе формул в статье https://habr.com/ru/articles/730936/ разработал свою реализацию
 """
 import math
+import random
 from math import exp, pi
 
 
@@ -94,5 +95,22 @@ def get_weigth_for_nd(target: int, nd: list[float]) -> float:
 
 
 if __name__ == '__main__':
+    nd = get_nd(100, 15, False)
+    m = max(nd)
+    print(nd)
+    print(sum(nd))
+    print(m)
 
-    print(get_nd(5, 0.8, True))
+    print(37.5*100)
+    x = [x for x in range(100)]
+    y = [0 for _ in range(100)]
+    c = 1
+    while True:
+        j = random.choices(x, weights=nd)[0]
+        y[j] += 1
+        c+=1
+        if max(y) >= 100:
+            break
+    print(y)
+    print(max(y))
+    print(c)
