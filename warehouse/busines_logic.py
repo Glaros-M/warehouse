@@ -165,26 +165,26 @@ def get_all_remains_for_technics(*, session: Session):
     return all_remains
 
 
+def draw(data, bins, file):
+    fig, ax = plt.subplots(figsize=(5, 3))
+    ax.hist(data, bins=bins)
+    plt.savefig(file)
+
+
 def get_diagram(*, session: Session):
     """ Построение гистограммы частот по количеству общих остатков единиц техники"""
     remains = get_all_remains_for_technics(session=session)
     lst = [quantity for _, quantity in remains.items()]
 
-    def draw(data, bins, file):
-        fig, ax = plt.subplots(figsize=(5, 3))
-        ax.hist(data, bins=bins)
-        plt.savefig(file)
-        'static\\1.jpg'
-
-    draw(lst, len(lst), 'static\\1.jpg')
-    draw(lst, 5, 'static\\2.jpg')
-    draw(lst, 10, 'static\\3.jpg')
+    draw(lst, len(lst), 'static/1.jpg')
+    draw(lst, 5, 'static/2.jpg')
+    draw(lst, 10, 'static/3.jpg')
 
 
 if __name__ == '__main__':
     # models.Base.metadata.create_all(engine)
     s = Session(engine)
-    # upload_100_technic()
+    #upload_100_technic()
     # print(get_remains_for_all_warehouse(session=s))
     """for x, rem, price, count in get_remains_for_all_warehouse(session=s):
         print(x)
@@ -193,7 +193,7 @@ if __name__ == '__main__':
         for key, val in rem.items():
             print(key, val)"""
 
-    print(get_all_remains_for_technics(session=s))
+    #print(get_all_remains_for_technics(session=s))
     # for x, y in get_all_remains_for_technics(session=s).items():
     #    print(x, y)
 
