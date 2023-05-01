@@ -109,6 +109,7 @@ def get_remains_for_warehouse(warehouse_id: int, *, session: Session) -> tuple[m
 
 
 def get_remains_for_all_warehouse(*, session: Session):
+    """ Получение данных для отчета по остаткам на всех складах"""
     warehouses = list(session.execute(Select(models.Warehouse.id)).scalars())
     remains_w = []
     for w_id in warehouses:
@@ -144,6 +145,7 @@ def get_remains_for_technic_in_warehouse(technic_id: int, *, session: Session) -
 
 
 def get_remains_for_technic(technic_id, *, session: Session) -> int:
+
     stmt = Select(models.Technic.cost,
                   models.Invoice.is_receiving,
                   models.InvoiceItems.quantity
@@ -163,6 +165,7 @@ def get_remains_for_technic(technic_id, *, session: Session) -> int:
 
 
 def get_all_remains_for_technics(*, session: Session):
+    """ Получение данных для отчета по общему остатку по каждой единице техники """
     stmt = Select(models.Technic.id)
     ids = list(session.execute(stmt).scalars())
     all_remains = {}
@@ -174,6 +177,7 @@ def get_all_remains_for_technics(*, session: Session):
 
 
 def get_diagram(*, session: Session):
+    """ Построение гистограммы частот по количеству общих остатков единиц техники"""
     remains = get_all_remains_for_technics(session=session)
 
     lst = [quantity for _, quantity in remains.items()]
@@ -187,5 +191,10 @@ if __name__ == '__main__':
     #models.Base.metadata.create_all(engine)
     s = Session(engine)
     #upload_100_technic()
+    #print(get_remains_for_all_warehouse(session=s))
+
+    print(get_all_remains_for_technics(session=s))
+    for x, y in get_all_remains_for_technics(session=s).items():
+        print(x, y)
 
     #get_diagram(session=s)
